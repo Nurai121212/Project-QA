@@ -27,10 +27,11 @@ function App() {
 
   const deletePost = async (id) => {
     const res = await axios.delete(`${API_KEY}/${id}`)
-    if(res.status === 200){
-      const newData = data.filter(item => item.id !== id);
-      setData(newData);
-    }
+    console.log(res);
+    if(res.status !== 200){return false}
+      
+    const newData = data.filter(item => item.id !== id);
+    setData(newData);
   }
 
   return (
