@@ -1,23 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import axios from "axios";
+import { useState, useEffect } from 'react';
+import List from "./components/List";
+import Preloader from "./components/Preloader";
+
+import loadGif from './assets/reload-cat.gif';
+import errorGif from './assets/cat-error.gif';
+
+const API_KEY = 'https://jsonplaceholder.typicode.com/posts';
 
 function App() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axios.get(API_KEY)
+          .then((res) => {
+            setData(res.data)
+          })
+          .catch((error) => {
+            console.error(error)
+          })
+          .finally(() => {
+            setLoading(false)
+          })
+  }, []);
+
+  const deletePost = async (id) => {
+    const res = await axios.delete(`${API_KEY}/${id}`)
+    if(res.status === 200){
+      const newData = data.filter(item => item.id !== id);
+      setData(newData);
+    }
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {loading ? 
+        <Preloader src={loadGif}/> 
+        :
+        data.length ? 
+          <List data={data} removeFunc={deletePost}/> 
+          : 
+          <Preloader src={errorGif}/>
+      }
     </div>
   );
 }
